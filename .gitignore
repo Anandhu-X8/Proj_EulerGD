@@ -1,2 +1,4 @@
 *.exe
 legacies
+*.json
+.vscode

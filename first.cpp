@@ -4,9 +4,9 @@
 using namespace std;
 int main()
 {
-    int eight;
+    int eight=8;
     cout<<"This is the first code im gonna post in GitHub"<<endl;
-    cin>>eight;
+    
     cout<<"the factorial of "<< eight<< "is 40320";
 return 0;
 }
