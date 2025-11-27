@@ -2,3 +2,4 @@
 legacies
 *.json
 .vscode
+*.out
