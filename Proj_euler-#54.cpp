@@ -64,6 +64,141 @@ void HandtoArray(int (&handArr)[4][15], std::vector<int> handVect) {
   }
 }
 
+// # standard followed: four of a kind of 8: X8; power:card_value
+// now to compare we need functins to find patterns in the sum vector
+// i.e., adjacent, maxsum, etc
+
+int FindMaxcount(std::vector<int> cardSum)
+// card sum has 4+13 elements
+{
+  // int one = 0, two = 0, three = 0, four = 0;
+  int max = 0;
+  for (int i = 4; i < 17; i++) {
+    if (cardSum[i] > max) {
+      max = cardSum[i];
+    }
+  }
+  return max;
+}
+
+int noCoherent(std::vector<int> cardSum, int index) {
+  // int value=*it;
+  int count = 1;
+  while (true) {
+    index++;
+    if (index > 16) {
+      break;
+    }
+    if (cardSum[index] == 1) {
+      count++;
+    } else {
+      break;
+    }
+  }
+  return count;
+}
+
+void insertRest(std::vector<char> &vect, std::vector<int> sum) {
+  // we assume 'key' cards are already inserted, only need to push dummy cards
+  int indexcard = 14;
+  for (auto it = sum.rbegin() + 3; it != sum.rend(); it++, indexcard--) {
+    if (*it == 1) {
+      vect.push_back(indexcard + 48);
+    }
+  }
+}
+
+std::string FindPower(std::vector<int> &cardSum) {
+  std::vector<char> power;
+  // using max sum we can find some hands
+  // printVec(cardSum);
+  int samesuit = (std::find(cardSum.begin(), cardSum.end() + 4, 5) !=
+                  cardSum.end() + 4); // true if found
+  // std::cout << "samesuit " << samesuit << std::endl;
+  auto firstone = std::find(cardSum.begin() + 4, cardSum.end(), 1);
+  int oneindex = firstone - cardSum.begin() + 4;
+  int lastone = 13 - oneindex;
+  int bond = noCoherent(cardSum, oneindex);
+  int maxfreq = FindMaxcount(cardSum);
+  // std::cout << "max " << maxfreq << std::endl;
+
+  if (samesuit) {  // flush, royal flush, straight flush
+    if (bond == 5) // royal flush, straight flush
+    {
+      if (oneindex == 12) { // last 5 cards
+        // royal flush
+        power.push_back('Z');
+      } else {
+        // str flush
+        power.push_back('Y');
+        power.push_back(oneindex + 48);
+      }
+    } else // normal flush
+    {
+      power.push_back('Q');
+      // power.push_back(lastone + 32); // neeed to push all remaining cards
+      insertRest(power, cardSum);
+    }
+  } // end of same suit
+
+  else {
+    // not same suit
+    if (maxfreq == 4) {
+      // 4 of a kind
+      power.push_back('X');
+      power.push_back(std::find(cardSum.begin() + 4, cardSum.end(), 4) -
+                      cardSum.begin() + 4); // not exactly the correct num,
+                                            // but will act as a good measure
+      insertRest(power, cardSum);
+    } else if (maxfreq == 3) // 3 ok or fullhouse
+    {
+      if (std::find(cardSum.begin() + 4, cardSum.end(), 2) !=
+          cardSum.end()) // there is a two, so fullhouse
+      {
+        power.push_back('R');
+        power.push_back(std::find(cardSum.begin() + 4, cardSum.end(), 3) -
+                        cardSum.begin()); // not exactly the correct num,
+        power.push_back(std::find(cardSum.begin() + 4, cardSum.end(), 2) -
+                        cardSum.begin()); // not exactly the correct num,
+      } else                              // no two only a 3ok, push all else
+      {
+        power.push_back('D');
+        power.push_back(std::find(cardSum.begin() + 4, cardSum.end(), 3) -
+                        cardSum.begin()); // not exactly the correct num,
+        // push the remaining cards
+        insertRest(power, cardSum);
+      }
+
+    } else if (maxfreq == 2) // two pair or pair
+    {
+      if (std::count(cardSum.begin() + 4, cardSum.end(), 2) !=
+          2) { // only a pair
+        power.push_back('B');
+        power.push_back(std::find(cardSum.begin() + 4, cardSum.end(), 2) -
+                        cardSum.begin());
+      } else { // two pair
+        power.push_back('C');
+        power.push_back(std::find(cardSum.rbegin() + 4, cardSum.rend(), 2) -
+                        cardSum.rbegin());
+        power.push_back(std::find(cardSum.begin() + 4, cardSum.end(), 2) -
+                        cardSum.begin());
+      }
+      insertRest(power, cardSum);
+    } else if (maxfreq == 1) // high card or straight
+    {
+      if (bond == 5) { // stright, need to insert all other cards
+        power.push_back('P');
+        insertRest(power, cardSum);
+      } else // high card need to push all else
+      {
+        insertRest(power, cardSum);
+      }
+    }
+  }
+  // return power;
+  return std::string(power.begin(), power.end());
+}
+
 int main() {
   // col : 0-14 : sacrifising two positions for readability
   int MasterHand[2000][4][15] = {};
@@ -118,4 +253,22 @@ int main() {
       // dealings
     }
   }
+
+  // now the final calculations
+  int finals = 0;
+  for (int i = 0; i < 2000; i += 2) {
+    // need to convert the hand from array to sums, then to power, then compare
+    auto sum1 = FindSum(MasterHand[i]);
+    auto sum2 = FindSum(MasterHand[i + 1]);
+    auto pow1 = FindPower(sum1);
+    std::cout << pow1 << " \t";
+    auto pow2 = FindPower(sum2);
+    std::cout << pow2 << std::endl;
+    if (pow1 > pow2) {
+      finals++;
+    }
+  }
+
+  // finally
+  std::cout << "players one wins: " << finals << std::endl;
 }
