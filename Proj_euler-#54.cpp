@@ -144,18 +144,12 @@ void insertRest(std::vector<char> &vect, std::vector<int> sum) {
 std::string FindPower(std::vector<int> &cardSum) {
   std::vector<char> power;
   // using max sum we can find some hands
-  // printVec(cardSum);
   int samesuit = (std::find(cardSum.begin(), cardSum.begin() + 4, 5) !=
                   cardSum.begin() + 4); // true if found
-  // std::cout << "samesuit " << samesuit << std::endl;
   auto firstone = std::find(cardSum.begin() + 4, cardSum.end(), 1);
   int oneindex = firstone - (cardSum.begin() + 4) + 2; // inthe range 0 to 13
-  std::cout << "oneindex" << oneindex << std::endl;
-  // int lastone = 13 - oneindex;
   int bond = noCoherent(cardSum, oneindex + 2);
-  std::cout << "bond " << bond << std::endl;
   int maxfreq = FindMaxcount(cardSum);
-  // std::cout << "max " << maxfreq << std::endl;
 
   if (samesuit) {  // flush, royal flush, straight flush
     if (bond == 5) // royal flush, straight flush
@@ -304,13 +298,9 @@ int main() {
     auto sum2 = FindSum(MasterHand[i + 1]);
     auto pow1 = FindPower(sum1);
     auto pow2 = FindPower(sum2);
-    std::cout << i / 2 + 1 << ") " << pow1 << "\t";
-    std::cout << pow2 << std::endl;
     if (pow1 > pow2) {
       finals++;
-      std::cout << "p1 won" << std::endl;
     }
-    std::cout << std::endl;
   }
 
   // finally
