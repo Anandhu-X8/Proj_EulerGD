@@ -4,13 +4,27 @@
 // the structure of ranks are organised as
 // 0 1 2 3 4 5 6 7 ... 13 14 | [15]
 // * * " " " " " " ... K  A  | size
+//
+// input file
+// rank, suit
+// 5 D, 7 S, Q C,...
+//
+void print2d(int arr[4][15]) {
+  for (int i = 0; i < 4; i++) {
+    for (int j = 0; j < 15; j++) {
+      std::cout << arr[i][j] << " ";
+    }
+    std::cout << std::endl;
+  }
+}
 void printVec(std::vector<int> vec) {
   for (auto a : vec) {
     std::cout << a << " ";
   }
   std::cout << std::endl;
 }
-std::vector<int> FindSum(int arr[4][15], char dir) {
+
+std::vector<int> FindSum(int arr[4][15]) {
   // output the row wise sum and column wise in an appended manner
   std::vector<int> suitsum(4, 0);
   std::vector<int> ranksum(13, 0);
@@ -18,52 +32,33 @@ std::vector<int> FindSum(int arr[4][15], char dir) {
   for (int suit = 0; suit < 4; suit++) {
     for (int rank = 2; rank < 15; rank++) {
       if (arr[suit][rank] == 1) {
+        // array has elements from position 2 to 14, (13 cards)
+        // these must be inserted in position 0 to 12 (13) in the vector
         suitsum[suit]++;
-        ranksum[rank]++;
+        ranksum[rank - 2]++;
       }
     }
   }
   suitsum.insert(suitsum.end(), ranksum.begin(), ranksum.end());
   return suitsum;
 }
-// function to find sum of a 2d array along a dimension
-// std::vector<int> FindSum(int arr[4][15], char dir) {
-//   // TODO  fix this!
-//   // default options for col wise summing
-//   int outer = 15, inner = 4;
-//   if (dir == 'R') {
-//     // sum of rows
-//     outer = 4;
-//     inner = 15;
-//   }
-//   std::vector<int> sumVector;
-//   for (int i = 0; i < outer; i++) {
-//     int sum = 0;
-//     for (int j = 0; j < inner; j++) {
-//       if (dir == 'R')
-//         sum += arr[i][j];
-//       else
-//         sum += arr[j][i];
-//     }
-//     sumVector.push_back(sum);
-//   }
-//   return sumVector;
-// }
 
 void HandtoArray(int (&handArr)[4][15], std::vector<int> handVect) {
   // conver a numeric vector to 2d array
   // vector contains one hand = 10 characters
+  // eg: 11 2 2 3 11 0 12 3 14 1
+  // in the form rank, suit: 9 C, ...
   int count = 0;
   int suit, rank;
   while (count < 10) {
     if (count % 2 == 0) {
-      // its suit
-      suit = handVect[count];
-    } else {
-      // its rank, also by now we have already read the suit
+      // its rank
       rank = handVect[count];
+    } else {
+      // its suit, also by now we have already read the rank
+      suit = handVect[count];
       // now insert info of suit and rank
-      handArr[suit][count] = 1;
+      handArr[suit][rank] = 1;
     }
     count++;
   }
@@ -105,6 +100,7 @@ int main() {
       // make a structure for each word
       for (char ch : word) {
         if (ch <= '9' && ch >= '0') {
+          // numbers will be of the range 2-9
           oneHand.push_back(ch - '0');
         } else {
           oneHand.push_back(cardSuiteValues[ch]);
@@ -122,10 +118,4 @@ int main() {
       // dealings
     }
   }
-  // std::cout << "ends here" << std::endl;
-  // std::cout << FindSum(MasterHand[0], 'R') << std::endl;
-  std::vector<int> dummy = FindSum(MasterHand[0], 'R');
-  // for (auto a : dummy) {
-  //   std::cout << a << std::endl;
-  // }
 }
